@@ -57,7 +57,10 @@ spec:
     }
     stage('build image') {
         steps{
-        container('docker') {
+        container('golang') {
+          sh 'make install'
+        }
+        container('docker'){
           sh 'make build'
         }
       }
