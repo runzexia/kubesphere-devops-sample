@@ -19,8 +19,9 @@ spec:
     volumeMounts:
       - name: docker
         mountPath: /var/run/docker.sock
+
   - name: golang
-    image: golang:1.10.3
+    image: golang:1.10-alpine
     command:
     - cat
     tty: true
@@ -34,36 +35,60 @@ spec:
   }
   stages {
     stage('pre'){
-        steps{
-            container('docker'){
-                sh 'apk add --update make'
-            }
-            container('golang'){
-                sh 'go get golang.org/x/tools/cmd/goimports'
+         parallel{
+            stage('docker-pre'){
+            steps{
+                 container('docker'){
+                     sh 'apk add --update make'
+                 }
+               }
+             }
+            stage('golang-pre') {
+            steps{
+                 container('golang'){
+                     sh 'apk add --update make'
+                     sh 'apk add --update git'
+                     sh 'apk add --no-cache bash'
+                     sh 'go get golang.org/x/tools/cmd/goimports'
+                 }
+              }
             }
         }
     }
     stage('scm'){
         steps {
-            git 'https://github.com/runzexia/kubesphere-devops-sample'
+            git url: 'https://github.com/kubesphere/devops'
         }
     }
     stage('check') {
       steps {
         container('golang') {
-          sh 'goimports -l -w -e -local=kubesphere -srcdir=/go/src/kubesphere.io/kubesphere ./cmd ./pkg'
+          sh 'chmod +x hack/*.sh'
+          sh 'make check'
         }
       }
     }
     stage('build image') {
         steps{
-        container('golang') {
-          sh 'make install'
-        }
         container('docker'){
-          sh 'make build'
+          sh 'docker build . -t runzexia/kubesphere-devops-sample:latest'
         }
       }
+    }
+    stage('push image'){
+        steps{
+            container('docker'){
+                withCredentials([[$class: 'UsernamePasswordMultiBinding',
+                         credentialsId: 'key-78303005',
+                         usernameVariable: 'DOCKER_HUB_USER',
+                         passwordVariable: 'DOCKER_HUB_PASSWORD']]) {
+                         sh """
+                           docker login -u ${DOCKER_HUB_USER} -p ${DOCKER_HUB_PASSWORD}
+                           docker push runzexia/kubesphere-devops-sample:latest
+                           """
+                }
+            }
+        }
     }
   }
 
