@@ -19,6 +19,11 @@ spec:
     volumeMounts:
       - name: docker
         mountPath: /var/run/docker.sock
+  - name: golang
+    image: golang:1.10.3
+    command:
+    - cat
+    tty: true
 
   volumes:
     - name: docker
@@ -33,6 +38,9 @@ spec:
             container('docker'){
                 sh 'apk add --update make'
             }
+            container('golang'){
+                sh 'go get golang.org/x/tools/cmd/goimports'
+            }
         }
     }
     stage('scm'){
@@ -42,8 +50,8 @@ spec:
     }
     stage('check') {
       steps {
-        container('docker') {
-          sh 'make fmt-check'
+        container('golang') {
+          sh 'goimports -l -w -e -local=kubesphere -srcdir=/go/src/kubesphere.io/kubesphere ./cmd ./pkg'
         }
       }
     }

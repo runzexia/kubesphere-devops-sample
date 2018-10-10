@@ -90,7 +90,7 @@ fmt-check: fmt-all
 build: fmt
 	mkdir -p ./tmp/bin && cp -r ./install/ ./tmp/
 	$(call get_build_flags)
-	$(RUN_IN_DOCKER) time go install -ldflags '$(BUILD_FLAG)' $(TRAG.Gopkg)/cmd/...
+	go install -ldflags '$(BUILD_FLAG)' $(TRAG.Gopkg)/cmd/...
 	mv ./tmp/bin/cmd ./tmp/bin/$(TRAG.Name)
 	@docker build -t $(TRAG.Org)/$(TRAG.Name) -f ./Dockerfile.dev ./tmp
 	@docker image prune -f 1>/dev/null 2>&1
