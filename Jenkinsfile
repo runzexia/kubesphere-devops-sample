@@ -76,6 +76,7 @@ spec:
       }
     }
     stage('push image'){
+        when { branch 'master' }
         steps{
             container('docker'){
                 withCredentials([[$class: 'UsernamePasswordMultiBinding',
