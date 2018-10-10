@@ -55,11 +55,6 @@ spec:
             }
         }
     }
-    stage('scm'){
-        steps {
-            git url: 'https://github.com/kubesphere/devops'
-        }
-    }
     stage('check') {
       steps {
         container('golang') {
