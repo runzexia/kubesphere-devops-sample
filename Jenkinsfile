@@ -57,6 +57,7 @@ spec:
     }
     stage('check') {
       steps {
+        checkout scm
         container('golang') {
           sh 'chmod +x hack/*.sh'
           sh 'make check'
