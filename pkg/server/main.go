@@ -14,11 +14,15 @@ limitations under the License.
 package main
 
 import (
-	"kubesphere.io/devops/pkg/config"
-	"kubesphere.io/devops/pkg/service"
+	"fmt"
+	"net/http"
 )
 
+func HelloWorld(res http.ResponseWriter, req *http.Request) {
+	fmt.Fprint(res, "Hello World")
+}
+
 func main() {
-	cfg := config.LoadConf()
-	service.Serve(cfg)
+	http.HandleFunc("/", HelloWorld)
+	http.ListenAndServe(":3000", nil)
 }
