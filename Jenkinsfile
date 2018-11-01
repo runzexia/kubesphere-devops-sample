@@ -34,16 +34,16 @@ spec:
     }
   }
   stages {
-    stage('pre'){
+    stage('prepare'){
          parallel{
-            stage('docker-pre'){
+            stage('docker env prepare'){
             steps{
                  container('docker'){
                      sh 'apk add --update make'
                  }
                }
              }
-            stage('golang-pre') {
+            stage('golang env pre prepare') {
             steps{
                  container('golang'){
                      sh 'apk add --update make'
@@ -55,7 +55,7 @@ spec:
             }
         }
     }
-    stage('check') {
+    stage('checkout scm & check code fmt') {
       steps {
         checkout scm
         container('golang') {
